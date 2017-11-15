@@ -2988,41 +2988,46 @@ var txt;
                 }
             }
             point1 = this.getRealPathPoint(position);
-            var segment = this.pathElement.pathSegList.getItem(this.pathElement.getPathSegAtLength(position)).pathSegType;
-            if (segment == 4) {
-                if (direction) {
-                }
-                else {
-                    if (this.pathElement.getPathSegAtLength(position) != this.pathElement.getPathSegAtLength(position - charOffset)) {
-                        var pp0 = this.getRealPathPoint(position);
-                        var pp1 = this.getRealPathPoint(position - charOffset);
-                        var ppc = this.pathElement.pathSegList.getItem(this.pathElement.getPathSegAtLength(position) - 1);
-                        var d0 = Math.sqrt(Math.pow((pp0.x - ppc['x']), 2) + Math.pow((pp0.y - ppc['y']), 2));
-                        var d1 = Math.sqrt(Math.pow((pp1.x - ppc['x']), 2) + Math.pow((pp1.y - ppc['y']), 2));
-                        if (d0 > d1) {
-                            point1 = pp0;
-                            point2 = { x: ppc['x'], y: ppc['y'] };
-                            var rot12 = Math.atan((point2.y - point1.y) / (point2.x - point1.x)) * 180 / Math.PI;
-                            if (point1.x > point2.x) {
-                                rot12 = rot12 + 180;
+            if (this.pathElement.getPathSegAtLength) {
+                var segment = this.pathElement.pathSegList.getItem(this.pathElement.getPathSegAtLength(position)).pathSegType;
+                if (segment == 4) {
+                    if (direction) {
+                    }
+                    else {
+                        if (this.pathElement.getPathSegAtLength(position) != this.pathElement.getPathSegAtLength(position - charOffset)) {
+                            var pp0 = this.getRealPathPoint(position);
+                            var pp1 = this.getRealPathPoint(position - charOffset);
+                            var ppc = this.pathElement.pathSegList.getItem(this.pathElement.getPathSegAtLength(position) - 1);
+                            var d0 = Math.sqrt(Math.pow((pp0.x - ppc['x']), 2) + Math.pow((pp0.y - ppc['y']), 2));
+                            var d1 = Math.sqrt(Math.pow((pp1.x - ppc['x']), 2) + Math.pow((pp1.y - ppc['y']), 2));
+                            if (d0 > d1) {
+                                point1 = pp0;
+                                point2 = {x: ppc['x'], y: ppc['y']};
+                                var rot12 = Math.atan((point2.y - point1.y) / (point2.x - point1.x)) * 180 / Math.PI;
+                                if (point1.x > point2.x) {
+                                    rot12 = rot12 + 180;
+                                }
+                                if (rot12 < 0) {
+                                    rot12 = rot12 + 360;
+                                }
+                                if (rot12 > 360) {
+                                    rot12 = rot12 - 360;
+                                }
+                                point1.rotation = rot12;
+                                return point1;
                             }
-                            if (rot12 < 0) {
-                                rot12 = rot12 + 360;
+                            else {
+                                point1 = {x: ppc['x'], y: ppc['y']};
+                                point1.offsetX = -d0;
+                                point1['next'] = true;
+                                return point1;
                             }
-                            if (rot12 > 360) {
-                                rot12 = rot12 - 360;
-                            }
-                            point1.rotation = rot12;
-                            return point1;
-                        }
-                        else {
-                            point1 = { x: ppc['x'], y: ppc['y'] };
-                            point1.offsetX = -d0;
-                            point1['next'] = true;
-                            return point1;
                         }
                     }
                 }
+            }
+            else {
+                // TODO: Newer version of SVG on latest browsers no longer have getPathSegAtLength method. Will need alternate method.
             }
             if (direction) {
                 point2 = this.getRealPathPoint(position + charOffset);
@@ -3087,7 +3092,7 @@ var txt;
     var Info = (function () {
         function Info() {
         }
-        Info.VERSION = "0.8.5";
+        Info.VERSION = "0.8.6";
         Info.LICENSE = "BSD-2-Clause";
         Info.CONTACT = "ted@light.ly";
         return Info;
